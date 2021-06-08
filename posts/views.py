@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from posts.models import *
 from posts.forms import NewPostForm
 from  django.http import HttpResponse,HttpResponseRedirect
+from profiles.models import *
 # Create your views here.
 
 
@@ -10,21 +11,18 @@ from  django.http import HttpResponse,HttpResponseRedirect
 # Create your views here.
 @login_required
 def index(request):
-    user = request.user
-    posts = user.stream_set.all()
-    form=NewPostForm()
-    group_ids = []
-    for post in posts:
-        group_ids.append(post.post_id)
+	pro = profile.objects.filter(userprofile=request.user)
+	user = request.user
+	posts = user.stream_set.all()
+	form = NewPostForm()
+	group_ids = []
 
-    post_items = Post.objects.filter(id__in=group_ids).all().order_by('-posted')
-    context={"post_items":post_items,"form":form}
-    return render(request,"index.html",context)
+	for post in posts:
+		group_ids.append(post.post_id)
 
-
-
-
-
+	post_items = Post.objects.filter(id__in=group_ids).all().order_by('-posted')
+	context = {"post_items": post_items, "form": form, "pro": pro}
+	return render(request, "index.html", context)
 
 
 @login_required
